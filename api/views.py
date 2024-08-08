@@ -1,28 +1,30 @@
 import json
 import os
-from django.http import JsonResponse
-from binascii import unhexlify
-from api.serializers import SatsUserSerializer
-from api.utils.Utils import Utils
-from secp256k1 import PublicKey
-from .models import FcmToken, SatsUser,SatsUser
-import os
 import random
 import string
-import lnurl
-import random
-import api.consumers as consumers
-from rest_framework.views import APIView
-from django.conf import settings
-from rest_framework.response import Response
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.db import IntegrityError
-from asgiref.sync import sync_to_async
+from django.contrib.auth import authenticate 
+from django.conf import settings
+from rest_framework.response import Response
+from rest_framework import views,viewsets,decorators
+from rest_framework_simplejwt import settings,authentication
 
+import lnurl
+import api.consumers as consumers
+from channels.layers import get_channel_layer
+from binascii import unhexlify
+from asgiref.sync import async_to_sync,sync_to_async
 
-class AuthView(APIView):
+from api.serializers import SatsUserSerializer, OrganizerSignUpSerializer
+from .permissions import IsAuthenticatedAndUserType
+from api.utils.Utils import Utils
+from secp256k1 import PublicKey
+from .models import FcmToken, SatsUser,SatsUser, Organizer
+
+action = decorators.action
+class AuthView(views.APIView):
     @csrf_exempt
     def auth_login_view(request):
         try:
@@ -106,3 +108,39 @@ class AuthView(APIView):
     def generate_random_string(length):
         letters = string.ascii_lowercase
         return ''.join(random.choice(letters) for _ in range(length))
+
+
+class OrganizerSignupView(views.APIView):
+    serializer_class = OrganizerSignUpSerializer
+
+    def post(self, request):
+        # Signup logic here
+        print('data',request.data)
+        serialized = self.serializer_class(data=request.data)
+        if serialized.is_valid(raise_exception=True):
+            user = serialized.save()
+            print('user',user)
+        return Response({'message': 'Signup successful'})
+
+class OrganizerViewSet(viewsets.ViewSet):
+    queryset = Organizer.objects.all()
+
+    def authenticate_organizer(username,password):
+        user = authenticate(username=username, password=password)
+        if user:
+            jwt_payload_handler = settings.api_settings.JWT_PAYLOAD_HANDLER
+            jwt_encode_handler = settings.api_settings.JWT_ENCODE_HANDLER
+            payload = jwt_payload_handler(user)
+            token = jwt_encode_handler(payload)
+
+    @action(detail=False, methods=['post'])
+
+    @action(detail=False, methods=['post'])
+    def signin(self, request):
+        # Signin logic here
+        return Response({'message': 'Signin successful'})
+
+    @action(detail=False, methods=['post'],)
+    def confirm_email(self, request):
+        # Confirm email logic here
+        return Response({'message': 'Email confirmed'})

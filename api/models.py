@@ -30,7 +30,6 @@ class CustomUserManager(BaseUserManager):
         user.is_superuser = True
         user.save()
         return user
-
 class User(AbstractUser):
 	magic_string = models.TextField(unique=True)
 	key = models.TextField()
@@ -57,16 +56,14 @@ class User(AbstractUser):
 class Organizer(models.Model):
 	name = models.TextField(unique=True)
 	email = models.EmailField(unique=True)
-	password =  models.TextField(max_length=50)
-	logo = models.ImageField(upload_to='/logos', blank=True)
+	password = models.TextField(max_length=50)
+	logo = models.ImageField(upload_to='logos', blank=True)
 
 	def __str__(self) -> str:
 		return self.name
 	
 	def get_url_link(self):
 		return self.name.strip()
-
-	
 		
 class SatsUser(models.Model):	
 	magic_string = models.TextField(unique=True)
@@ -95,11 +92,10 @@ class SatsUser(models.Model):
 		self.sats_balance = amount_sats
 		self.save(update_fields=['sats_balance'])
 
-
 class FcmToken(models.Model):
 	magic_string = models.TextField(unique=True)
 	token = models.TextField()
 	created_at = models.DateTimeField(auto_now_add=True)
 
 	def __str__(self):
-		return f"magic_string: {self.magic_string},token: {self.token},created_at: {self.created_at}"
+		return f"magic_string:{self.magic_string},token: {self.token},created_at: {self.created_at}"

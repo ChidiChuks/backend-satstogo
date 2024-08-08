@@ -3,7 +3,6 @@ import pytz
 from .models import Event, EventSession, Attendance
 from api.models import SatsUser
 from rest_framework import serializers,validators
-
 class EventSessionReadSerializer(serializers.ModelSerializer):
     class Meta:
         model = EventSession
