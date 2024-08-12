@@ -1,7 +1,6 @@
 from django.db import models
 from django.utils import timezone
-from django.contrib.auth.models import AbstractUser,BaseUserManager
-from django.core.exceptions import ValidationError
+from django.contrib.auth.models import AbstractUser, BaseUserManager, AbstractBaseUser
 from rest_framework import serializers
 
 # Create your models here.
@@ -30,6 +29,8 @@ class CustomUserManager(BaseUserManager):
         user.is_superuser = True
         user.save()
         return user
+
+
 class User(AbstractUser):
 	magic_string = models.TextField(unique=True)
 	key = models.TextField()
@@ -53,10 +54,11 @@ class User(AbstractUser):
 		self.last_login = timezone.now()
 		self.save(update_fields=['last_login'])
 
+
 class Organizer(models.Model):
 	name = models.TextField(unique=True)
 	email = models.EmailField(unique=True)
-	password = models.TextField(max_length=50)
+	password =  models.TextField(max_length=50)
 	logo = models.ImageField(upload_to='logos', blank=True)
 
 	def __str__(self) -> str:
@@ -64,19 +66,29 @@ class Organizer(models.Model):
 	
 	def get_url_link(self):
 		return self.name.strip()
-		
-class SatsUser(models.Model):	
+
+
+class SatsUser(AbstractBaseUser):	
+	USER_TYPE_CHOICES = (
+		('Client', 'client'),
+		('Organizer', 'organizer'),
+		('Admin', 'admin')
+	)
+
+	user_type = models.TextField(max_length=15,choices=USER_TYPE_CHOICES,default='client')
 	magic_string = models.TextField(unique=True)
+	sats_balance = models.IntegerField(default=0)
 	first_name = models.TextField(default="",null=True,)
 	last_name = models.TextField(default="",null=True)
-	sats_balance = models.IntegerField(default=0)
 	key = models.TextField()
 	sig = models.TextField()
 	created_at = models.DateTimeField(auto_now_add=True)
 	last_login = models.DateTimeField(auto_now_add=True)
 
+	USERNAME_FIELD = 'magic_string'	
+
 	def __str__(self):
-		return f"pk:${self.pk} magic_string: {self.magic_string},key: {self.key}, sig: {self.sig}, first_name: {self.first_name}, last_name: {self.last_name}, created_at: {self.created_at}, last_login: {self.last_login}"
+		return f"pk:${self.pk} magic_string: {self.magic_string}"
 
 	def update_last_login(self):
 		self.last_login = timezone.now()
@@ -92,10 +104,24 @@ class SatsUser(models.Model):
 		self.sats_balance = amount_sats
 		self.save(update_fields=['sats_balance'])
 
+
+class SatsUserClient(models.Model):
+	user = models.ForeignKey(SatsUser,on_delete=models.CASCADE)
+	key = models.TextField()
+	sig = models.TextField()
+	first_name = models.TextField(default="",null=True,)
+	last_name = models.TextField(default="",null=True)
+	sats_balance = models.IntegerField(default=0)
+class SatsUserClient(models.Model):
+	user = models.ForeignKey(SatsUser,on_delete=models.CASCADE)
+	name = models.TextField()
+	email = models.EmailField(unique=True)
+	logo = models.ImageField(upload_to="logo",null=True,)
+
 class FcmToken(models.Model):
 	magic_string = models.TextField(unique=True)
 	token = models.TextField()
 	created_at = models.DateTimeField(auto_now_add=True)
 
 	def __str__(self):
-		return f"magic_string:{self.magic_string},token: {self.token},created_at: {self.created_at}"
+		return f"magic_string: {self.magic_string},token: {self.token},created_at: {self.created_at}"
