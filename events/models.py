@@ -48,7 +48,7 @@ class EventSession(models.Model):
 	title = models.TextField()
 	parent_event = models.ForeignKey(Event,on_delete=models.CASCADE)
 	deadline = models.DateTimeField()
-	deadline_string = models.CharField(null=True, blank=True)
+	deadline_string = models.CharField(null=True, blank=True, max_length=100)
 	def __str__(self):
 		return f"ID: {self.pk} - Name: {self.title}"
 	
