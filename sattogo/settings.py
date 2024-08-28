@@ -11,16 +11,19 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 import os
-from pathlib import Path
-import os
-from dotenv import load_dotenv
 import dj_database_url
+from datetime import timedelta
+from pathlib import Path
+from dotenv import load_dotenv
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv()
+
+GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
+GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
 
 
 LNURL_ENDPOINT = os.environ.get('LNURL_ENDPOINT')
@@ -126,7 +129,6 @@ REST_AUTH = {
 }
 
 # JWT settings
-from datetime import timedelta
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
@@ -249,5 +251,8 @@ LOGGING = {
         },
     },
 }
+
+
+
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

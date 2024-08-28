@@ -32,7 +32,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('auth/', include('dj_rest_auth.urls')),  # Login, Logout, Password Reset
     path('auth/registration/', include('dj_rest_auth.registration.urls')),  # Registration
-    path('auth/social/google/', GoogleLogin.as_view(), name='google_login'),  # Google login
+    path('auth/google/callback/', GoogleLogin.as_view(), name='google_login'),  # Google login
     path('api/', include('api.urls')),
     path('events/', include('events.urls')),
     path('wallet/', include('wallet.urls')),
