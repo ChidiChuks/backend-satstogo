@@ -88,3 +88,4 @@ class FcmToken(models.Model):
 
 	def __str__(self):
 		return f"magic_string: {self.magic_string},token: {self.token},created_at: {self.created_at}"
+
